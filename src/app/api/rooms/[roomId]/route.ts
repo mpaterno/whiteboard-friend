@@ -8,9 +8,9 @@ const rooms = new Map<string, TLSocketRoom>();
 // Handle WebSocket connections
 export async function GET(
   req: NextRequest,
-  { params }: { params: { roomId: string } }
+  context: { params: { roomId: string } }
 ) {
-  const { roomId } = params;
+  const { roomId } = context.params;
   
   // Validate the room ID
   if (!isValidRoomId(roomId)) {
