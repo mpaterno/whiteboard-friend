@@ -1,45 +1,54 @@
 import React from 'react';
-import { RoomInfoProps } from '../../lib/utils/types';
+import Link from 'next/link';
+import { ClipboardDocumentIcon, HomeIcon } from '@heroicons/react/24/outline';
+import { formatRoomId } from '../../lib/utils/roomUtils';
 
-export const RoomInfo: React.FC<RoomInfoProps> = ({ roomId, isConnected, copyToClipboard }) => {
+interface RoomInfoProps {
+  roomId: string;
+  isConnected: boolean;
+  copyToClipboard: () => void;
+}
+
+const RoomInfo: React.FC<RoomInfoProps> = ({ roomId, isConnected, copyToClipboard }) => {
+  // Format room ID for display
+  const displayRoomId = formatRoomId(roomId);
+  
   return (
-    <div className="room-info">
-      <div className="room-status">
-        <div
-          className="user-presence-dot"
-          style={{ backgroundColor: isConnected ? '#36B37E' : '#FF5630' }}
-          title={isConnected ? 'Connected' : 'Disconnected'}
-        ></div>
-        <span>Room: {roomId}</span>
+    <div className="absolute top-4 right-4 z-50 flex items-center space-x-2 bg-white/90 backdrop-blur-sm p-2 rounded-lg shadow-md">
+      {/* Connection status indicator */}
+      <div className="flex items-center">
+        <div 
+          className={`h-2.5 w-2.5 rounded-full mr-1.5 ${
+            isConnected ? 'bg-green-500' : 'bg-red-500'
+          }`}
+        />
+        <span className="text-xs text-gray-600">
+          {isConnected ? 'Connected' : 'Connecting...'}
+        </span>
       </div>
+      
+      {/* Room ID */}
+      <div className="text-sm font-medium px-2 py-1 border border-gray-200 rounded bg-gray-50">
+        Room: {displayRoomId}
+      </div>
+      
+      {/* Share button */}
       <button
         onClick={copyToClipboard}
-        className="copy-button"
-        title="Copy invite link"
+        title="Copy room link"
+        className="p-1.5 hover:bg-gray-100 rounded-md transition-colors"
       >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M8 4V16C8 17.1046 8.89543 18 10 18H18C19.1046 18 20 17.1046 20 16V7.41421C20 6.88378 19.7893 6.37507 19.4142 6L16 2.58579C15.6249 2.21071 15.1162 2 14.5858 2H10C8.89543 2 8 2.89543 8 4Z"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M16 18V20C16 21.1046 15.1046 22 14 22H6C4.89543 22 4 21.1046 4 20V9C4 7.89543 4.89543 7 6 7H8"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+        <ClipboardDocumentIcon className="h-5 w-5 text-gray-600" />
       </button>
+      
+      {/* Home button */}
+      <Link
+        href="/"
+        title="Go to home"
+        className="p-1.5 hover:bg-gray-100 rounded-md transition-colors"
+      >
+        <HomeIcon className="h-5 w-5 text-gray-600" />
+      </Link>
     </div>
   );
 };

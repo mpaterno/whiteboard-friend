@@ -13,6 +13,12 @@ interface WhiteboardCanvasProps {
   roomId?: string;
 }
 
+interface RecentRoom {
+  id: string;
+  timestamp: number;
+  name?: string;
+}
+
 // Editor component wrapped with track to make it reactive
 const EditorUI = track(() => {
   const editor = useEditor();
@@ -96,6 +102,41 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({ roomId = DEF
   const { room, joinRoom, sendMessage } = useRoom(roomId);
   const { syncStore, isConnected } = useSync(roomId);
   const [chatOpen, setChatOpen] = useState(false);
+  
+  // Track room in recent rooms
+  useEffect(() => {
+    if (roomId === DEFAULT_ROOM_ID) return;
+    
+    try {
+      // Get existing rooms or initialize empty array
+      const storedRooms = localStorage.getItem('whiteboard-recent-rooms');
+      const recentRooms: RecentRoom[] = storedRooms ? JSON.parse(storedRooms) : [];
+      
+      // Check if room already exists in list
+      const roomIndex = recentRooms.findIndex((room) => room.id === roomId);
+      
+      // Create new room entry
+      const roomEntry: RecentRoom = {
+        id: roomId,
+        timestamp: Date.now(),
+      };
+      
+      // If room exists, update it, otherwise add to beginning
+      if (roomIndex >= 0) {
+        recentRooms[roomIndex] = roomEntry;
+      } else {
+        recentRooms.unshift(roomEntry);
+      }
+      
+      // Limit to 5 recent rooms
+      const limitedRooms = recentRooms.slice(0, 5);
+      
+      // Save back to localStorage
+      localStorage.setItem('whiteboard-recent-rooms', JSON.stringify(limitedRooms));
+    } catch (err) {
+      console.error('Error saving recent room:', err);
+    }
+  }, [roomId]);
   
   // Join room when component mounts
   useEffect(() => {

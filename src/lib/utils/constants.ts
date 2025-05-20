@@ -29,18 +29,6 @@ export const TOOLS = [
     icon: 'eraser'
   },
   {
-    id: 'rectangle',
-    name: 'Rectangle',
-    shortcut: 'r',
-    icon: 'square'
-  },
-  {
-    id: 'ellipse',
-    name: 'Circle',
-    shortcut: 'c',
-    icon: 'circle'
-  },
-  {
     id: 'text',
     name: 'Text',
     shortcut: 't',
