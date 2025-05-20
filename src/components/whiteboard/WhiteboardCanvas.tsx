@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Tldraw, useEditor, track } from '@tldraw/tldraw';
+import { useSyncDemo } from '@tldraw/sync';
 import CustomToolbar from './CustomToolbar';
 import UserPresence from '../collaboration/UserPresence';
 import RoomInfo from '../collaboration/RoomInfo';
 import ChatPanel from '../chat/ChatPanel';
 import { useUser } from '../../lib/hooks/useUser';
 import { useRoom } from '../../lib/hooks/useRoom';
-import { useSync } from '../../lib/hooks/useSync';
 import { DEFAULT_ROOM_ID } from '../../lib/utils/constants';
 
 interface WhiteboardCanvasProps {
@@ -100,8 +100,36 @@ const EditorUI = track(() => {
 export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({ roomId = DEFAULT_ROOM_ID }) => {
   const { user } = useUser();
   const { room, joinRoom, sendMessage } = useRoom(roomId);
-  const { syncStore, isConnected } = useSync(roomId);
+  const [isConnected, setIsConnected] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  
+  // Use tldraw's built-in sync demo
+  const syncStore = useSyncDemo({
+    roomId: `whiteboard-friend-${roomId}`,
+    userInfo: user ? {
+      id: user.id,
+      name: user.name,
+      color: user.color
+    } : undefined
+  });
+  
+  // Update connection status when sync store status changes
+  useEffect(() => {
+    if (!syncStore) return;
+    
+    const connected = syncStore.status === 'synced-remote';
+    setIsConnected(connected);
+    
+    if (connected && user) {
+      joinRoom(user);
+    }
+    
+    return () => {
+      if (user) {
+        // Cleanup
+      }
+    };
+  }, [syncStore, syncStore?.status, user, joinRoom]);
   
   // Track room in recent rooms
   useEffect(() => {

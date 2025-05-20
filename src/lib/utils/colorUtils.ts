@@ -1,5 +1,5 @@
 /**
- * Generates a random hex color code
+ * Generates a random hex color code from a predefined palette of visually pleasing colors
  * @returns A random hex color code
  */
 export const generateRandomColor = (): string => {
