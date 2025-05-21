@@ -1,0 +1,100 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+
+# Your rule content
+# Core Application Rules
+
+## State Management
+- @app/stores/roomStore.ts
+- Never modify the core room state structure without migration plan
+- Preserve these required properties in Room type:
+  ```ts
+  interface Room {
+    id: string
+    participants: Participant[]
+    history: Operation[]
+    version: number
+    locked: boolean
+  }
+  ```
+
+## Data Flow
+- @app/lib/syncEngine.ts
+- All room mutations must go through the `applyOperation` pipeline
+- Maintain ordering guarantees for operations:
+  ```ts
+  // Bad: Direct state modification
+  room.doc.content = newContent
+  
+  // Good: Use operation pipeline
+  syncEngine.queueOperation(transformOperation(op))
+  ```
+
+## Room Lifecycle
+- @app/components/RoomProvider.tsx
+- Preserve the cleanup sequence in useEffect hooks:
+  ```tsx
+  useEffect(() => {
+    const handleJoin = async () => {
+      await joinRoom();
+      await loadHistory();
+    };
+    
+    handleJoin();
+    return () => {
+      disconnectSocket();  // Must be first
+      clearUndoStack();    // Must come after socket cleanup
+    };
+  }, []);
+  ```
+
+## API Contracts
+- @app/types/api.d.ts
+- Never change API response structure for:
+  - POST /api/room/create
+  - GET /api/room/[id]/events
+  - POST /api/room/[id]/op
+- Maintain backward compatibility for at least 2 versions
+
+## Realtime Sync
+- @app/lib/webSocket.ts
+- WebSocket messages must contain:
+  ```ts
+  interface WsMessage {
+    type: 'operation' | 'presence' | 'lock'
+    version: number
+    timestamp: number
+  }
+  ```
+- Never remove heartbeat mechanism:
+  ```ts
+  setInterval(() => {
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.ping();  // Critical for connection stability
+    }
+  }, 30000);
+  ```
+
+## Error Handling
+- All error paths must:
+  1. Update room status to 'error'
+  2. Preserve last known good state
+  3. Log to Sentry with room context
+  ```ts
+  catch (err) {
+    setRoomState({ status: 'error', lastValidState: currentRoom });
+    logError(err, { roomId: room.id, userId: currentUser.id });
+  }
+  ```
+
+## Dependency Constraints
+- Keep these library versions locked:
+  - "yjs": "^13.6.6"
+  - "socket.io-client": "^4.7.5"
+  - "immer": "^10.0.2"
+
+- You can @ files here
+- You can use markdown but dont have to

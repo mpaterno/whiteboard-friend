@@ -183,6 +183,20 @@ body {
   display: flex;
   flex-direction: column;
   font-size: 14px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background-color: var(--button-bg);
+  margin-bottom: 4px;
+}
+
+.chat-message-own {
+  background-color: var(--primary);
+  color: white;
+  align-self: flex-end;
+}
+
+.chat-message-own .chat-message-sender {
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .chat-message-sender {
@@ -226,4 +240,11 @@ body {
 
 .chat-input button:hover {
   background-color: var(--primary-hover);
+}
+
+.chat-no-messages {
+  color: #888;
+  font-style: italic;
+  text-align: center;
+  margin: 10px 0;
 }

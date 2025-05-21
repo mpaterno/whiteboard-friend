@@ -66,6 +66,7 @@ export const useRoomStore = create<RoomStore>((set) => ({
       id: generateMessageId(),
       timestamp: messageData.timestamp || Date.now()
     }
+
     
     return {
       room: {

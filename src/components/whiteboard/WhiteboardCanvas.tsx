@@ -120,16 +120,8 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({ roomId = DEF
     const connected = syncStore.status === 'synced-remote';
     setIsConnected(connected);
     
-    if (connected && user) {
-      joinRoom(user);
-    }
-    
-    return () => {
-      if (user) {
-        // Cleanup
-      }
-    };
-  }, [syncStore, syncStore?.status, user, joinRoom]);
+    // Don't call joinRoom here - it's handled in the other useEffect
+  }, [syncStore, syncStore?.status]);
   
   // Track room in recent rooms
   useEffect(() => {
@@ -166,12 +158,12 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({ roomId = DEF
     }
   }, [roomId]);
   
-  // Join room when component mounts
+  // Join room when component mounts or user changes
   useEffect(() => {
-    if (user) {
+    if (user && isConnected) {
       joinRoom(user);
     }
-  }, [user, joinRoom]);
+  }, [user, joinRoom, isConnected]);
   
   // Copy room link to clipboard
   const copyRoomLink = useCallback(() => {
@@ -205,7 +197,7 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({ roomId = DEF
       
       {/* Show user presence */}
       {room && (
-        <UserPresence users={room.users} roomId={roomId} />
+        <UserPresence users={room.users} />
       )}
       
       {/* Show room info */}
@@ -232,10 +224,17 @@ export const WhiteboardCanvas: React.FC<WhiteboardCanvasProps> = ({ roomId = DEF
                 backgroundColor: 'var(--primary)',
                 color: 'white',
                 border: 'none',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)'
               }}
             >
-              Open Chat
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21 11.5C21 16.1944 16.9706 20 12 20C10.232 20 8.55892 19.5308 7.09117 18.7035L3 20L4.46902 16.3086C3.48225 14.797 3 13.0378 3 11.5C3 6.80558 7.02944 3 12 3C16.9706 3 21 6.80558 21 11.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Chat {room.messages.length > 0 && `(${room.messages.length})`}
             </button>
           )}
           

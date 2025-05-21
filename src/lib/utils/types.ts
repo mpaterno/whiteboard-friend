@@ -18,7 +18,7 @@ export interface ChatProps {
 
 export interface UserPresenceProps {
   users: User[]
-  roomId: string
+  roomId?: string
 }
 
 export interface ToolbarProps {

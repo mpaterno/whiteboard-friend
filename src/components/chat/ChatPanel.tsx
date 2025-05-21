@@ -59,8 +59,7 @@ export const ChatPanel: React.FC<ChatProps> = ({
           messages.map((message) => (
             <div
               key={message.id}
-              className="chat-message"
-              data-is-own={message.sender.id === user.id}
+              className={`chat-message ${message.sender.id === user.id ? 'chat-message-own' : ''}`}
             >
               <div className="chat-message-sender">
                 <div
@@ -82,8 +81,9 @@ export const ChatPanel: React.FC<ChatProps> = ({
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
           placeholder="Type a message..."
+          autoFocus
         />
-        <button type="submit">Send</button>
+        <button type="submit" disabled={!inputText.trim()}>Send</button>
       </form>
     </div>
   );
